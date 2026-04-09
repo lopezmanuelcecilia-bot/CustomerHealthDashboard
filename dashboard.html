@@ -1,23 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 <meta charset="UTF-8">
 <title>Customer Health Dashboard</title>
-
 <link rel="stylesheet" href="styles.css">
-
-<!-- Librería para gráficas -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
-
 <body>
 
-<h1>Customer Health AI Dashboard</h1>
+<div class="container">
+
+<h1> Customer Health AI Dashboard</h1>
+
+<div class="kpi-container">
+    <div class="kpi-card">
+        <h3 id="altoRiesgo">0</h3>
+        <p>Clientes en Riesgo Alto</p>
+    </div>
+    <div class="kpi-card">
+        <h3 id="clientesSaludables">0</h3>
+        <p>Clientes Saludables</p>
+    </div>
+    <div class="kpi-card">
+        <h3 id="promedioNPS">0</h3>
+        <p>Promedio NPS</p>
+    </div>
+</div>
 
 <table>
-
 <tr>
 <th>Cliente</th>
 <th>Últimas Compras</th>
@@ -26,29 +36,25 @@
 <th>NPS</th>
 <th>Quejas</th>
 <th>Estado</th>
+<th>Health Score</th>
 <th>Recomendación</th>
-<th>Ver gráfica</th>
+<th>Gráfica</th>
 </tr>
-
 <tbody id="tablaClientes"></tbody>
-
 </table>
 
-<h2>Historial de compras</h2>
-
+<h2>📈 Historial de Compras</h2>
 <canvas id="graficaCompras"></canvas>
+
+</div>
 
 <script src="database.js"></script>
 <script src="script.js"></script>
 
 <script>
-
-document.addEventListener("DOMContentLoaded",function(){
-
-analizarClientes();
-
+document.addEventListener("DOMContentLoaded", function(){
+    analizarClientes();
 });
-
 </script>
 
 </body>

@@ -1,31 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 <meta charset="UTF-8">
 <title>Portal de Compras</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
 
-<h1>Portal de Compras de Clientes</h1>
+<div class="container">
+    <div class="card">
+        <h1>🛒 Portal de Compras de Clientes</h1>
 
-<label>Empresa</label>
+        <label>Empresa</label>
+        <select id="cliente">
+            <option>Empresa ABC</option>
+            <option>Empresa Beta</option>
+            <option>Empresa Gamma</option>
+            <option>Empresa Delta</option>
+            <option>Empresa Omega</option>
+        </select>
 
-<select id="cliente">
-<option>Empresa ABC</option>
-<option>Empresa Beta</option>
-<option>Empresa Gamma</option>
-<option>Empresa Delta</option>
-<option>Empresa Omega</option>
-</select>
+        <label>Monto de compra</label>
+        <input type="number" id="monto" placeholder="Ingrese monto">
 
-<label>Monto de compra</label>
-
-<input type="number" id="monto">
-
-<button onclick="comprar()">Registrar Compra</button>
+        <button onclick="comprar()">Registrar Compra</button>
+    </div>
+</div>
 
 <script src="database.js"></script>
 <script src="script.js"></script>
