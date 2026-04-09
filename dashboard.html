@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<title>Customer Health Dashboard</title>
+
+<link rel="stylesheet" href="styles.css">
+
+<!-- Librería para gráficas -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<h1>Customer Health AI Dashboard</h1>
+
+<table>
+
+<tr>
+<th>Cliente</th>
+<th>Últimas Compras</th>
+<th>Servicio %</th>
+<th>Puntualidad %</th>
+<th>NPS</th>
+<th>Quejas</th>
+<th>Estado</th>
+<th>Recomendación</th>
+<th>Ver gráfica</th>
+</tr>
+
+<tbody id="tablaClientes"></tbody>
+
+</table>
+
+<h2>Historial de compras</h2>
+
+<canvas id="graficaCompras"></canvas>
+
+<script src="database.js"></script>
+<script src="script.js"></script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded",function(){
+
+analizarClientes();
+
+});
+
+</script>
+
+</body>
+</html>
