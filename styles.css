@@ -1,75 +1,207 @@
-body{
-
-font-family:Arial;
-background:#f4f6f9;
-padding:40px;
-
+/* =====================================
+   RESET GENERAL
+===================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-h1{
-
-text-align:center;
-
+/* =====================================
+   BODY
+===================================== */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #111827 35%, #1e293b 100%);
+    color: white;
+    min-height: 100vh;
+    padding: 30px 20px;
 }
 
-table{
-
-width:100%;
-border-collapse:collapse;
-background:white;
-
+/* =====================================
+   CONTENEDOR
+===================================== */
+.container {
+    max-width: 1400px;
+    margin: auto;
+    padding: 20px;
 }
 
-th{
-
-background:#1f3c88;
-color:white;
-padding:12px;
-
+/* =====================================
+   TITULOS
+===================================== */
+h1 {
+    text-align: center;
+    color: #38bdf8;
+    margin-bottom: 35px;
+    font-size: 2rem;
 }
 
-td{
-
-padding:10px;
-border-bottom:1px solid #ddd;
-
+h2 {
+    text-align: center;
+    color: #38bdf8;
+    margin: 55px 0 20px;
+    font-size: 1.7rem;
 }
 
-.verde{
-
-background:#d4edda;
-
+/* =====================================
+   KPI CARDS
+===================================== */
+.kpi-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-bottom: 35px;
 }
 
-.amarillo{
-
-background:#fff3cd;
-
+.kpi-card {
+    background: #1e293b;
+    border-radius: 22px;
+    padding: 28px;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
 }
 
-.rojo{
-
-background:#f8d7da;
-
+.kpi-card h3 {
+    font-size: 2rem;
+    color: #38bdf8;
 }
 
-button{
-
-margin-top:10px;
-padding:10px;
-
-}
-canvas{
-
-background:white;
-margin-top:20px;
-padding:20px;
-
+.kpi-card p {
+    color: #cbd5e1;
+    margin-top: 10px;
 }
 
-button{
+/* =====================================
+   TABLA
+===================================== */
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 22px;
+    background: #1e293b;
+    padding: 6px;
+}
 
-padding:6px 10px;
-cursor:pointer;
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1100px;
+    background: #1e293b;
+    color: white;
+}
 
+th {
+    background: #0f172a;
+    color: #38bdf8;
+    padding: 18px 14px;
+}
+
+td {
+    padding: 16px 12px;
+    text-align: center;
+}
+
+.verde {
+    background: rgba(34,197,94,0.08);
+}
+
+.amarillo {
+    background: rgba(250,204,21,0.08);
+}
+
+.rojo {
+    background: rgba(239,68,68,0.08);
+}
+
+/* =====================================
+   INPUTS
+===================================== */
+input {
+    width: 70px;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: #334155;
+    color: white;
+    text-align: center;
+}
+
+/* =====================================
+   BOTONES
+===================================== */
+button {
+    background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+    color: #0f172a;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* =====================================
+   ESTADO DOT
+===================================== */
+.estado-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.estado-dot.rojo {
+    background: #ef4444;
+}
+
+.estado-dot.amarillo {
+    background: #facc15;
+}
+
+.estado-dot.verde {
+    background: #22c55e;
+}
+
+/* =====================================
+   HISTORIAL
+===================================== */
+.historial-corto {
+    color: #cbd5e1;
+}
+
+/* =====================================
+   GRAFICA
+===================================== */
+.chart-container {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    padding: 30px;
+    border-radius: 26px;
+    margin-top: 25px;
+    width: 100%;
+    min-height: 500px;
+}
+
+canvas {
+    width: 100% !important;
+    height: 450px !important;
+    border-radius: 20px;
+    display: block;
+    background: transparent;
+    padding: 0 !important;
+}
+
+/* =====================================
+   RESPONSIVE
+===================================== */
+
+
+@media (max-width: 768px) {
+    canvas {
+        height: 300px !important;
+    }
+
+    .chart-container {
+        min-height: 350px;
+    }
 }

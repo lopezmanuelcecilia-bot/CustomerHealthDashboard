@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Customer Health AI  – Detección de Clientes en Riesgo | Traxión</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #111827 35%, #1e293b 100%);
+    color: white;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* NAV */
+  nav {
+    background: #0f172a;
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .nav-brand { display: flex; align-items: center; gap: 12px; }
+  .nav-logo {
+    width: 32px; height: 32px; background: #38bdf8;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px; color: #0f172a;
+    letter-spacing: 0;
+  }
+  .nav-title { color: #fff; font-weight: 500; font-size: 16px; }
+  .nav-sub { color: rgba(255,255,255,0.65); font-size: 13px; }
+
+  /* LAYOUT */
+  .layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 60px);
+  }
+
+  /* SIDEBAR FORM */
+  .sidebar {
+    background: #1e293b;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .client-header {
+    padding: 1rem;
+    background: #0f172a;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .client-header label {
+    font-size: 12px; color: #94a3b8; display: block; margin-bottom: 4px;
+  }
+  .client-header input {
+    width: 100%; border: none; background: transparent;
+    font-size: 18px; font-weight: 500; color: #38bdf8;
+    outline: none;
+  }
+  .client-header input::placeholder { color: #475569; font-weight: 400; }
+
+  .metric-card {
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 1rem;
+    background: #0f172a;
+  }
+  .metric-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .metric-label { font-size: 13px; font-weight: 500; color: #cbd5e1; }
+  .metric-hint { font-size: 11px; color: #64748b; max-width: 140px; text-align: right; line-height: 1.4; }
+
+  .metric-input-row {
+    display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  }
+  .metric-value-badge {
+    font-size: 20px; font-weight: bold;
+    min-width: 44px; text-align: right;
+    color: #38bdf8;
+  }
+
+  .analyze-btn {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: -10px;
+  }
+  .analyze-btn:hover { background: rgba(255,255,255,0.05); color: white; }
+
+  .reset-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+    color: #0f172a;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .reset-btn:hover { opacity: 0.9; }
+
+  /* MAIN PANEL */
+  .main {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    overflow-y: auto;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #64748b;
+    text-align: center;
+    padding: 3rem;
+  }
+  .empty-icon {
+    width: 64px; height: 64px;
+    background: #1e293b;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .empty-icon svg { width: 28px; height: 28px; opacity: 0.4; }
+  .empty-title { font-size: 15px; font-weight: 500; color: #94a3b8; }
+  .empty-sub { font-size: 13px; color: #64748b; }
+
+  /* RESULT PANEL */
+  .result-panel { display: none; flex-direction: column; gap: 1.25rem; }
+
+  .risk-hero {
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .risk-hero.green  { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); }
+  .risk-hero.yellow { background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.3); }
+  .risk-hero.red    { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); }
+  .risk-hero.critical { background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.6); }
+
+  .risk-orb {
+    width: 56px; height: 56px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .risk-hero.green    .risk-orb { background: #22c55e; }
+  .risk-hero.yellow   .risk-orb { background: #facc15; }
+  .risk-hero.red      .risk-orb { background: #ef4444; }
+  .risk-hero.critical .risk-orb { background: #b91c1c; }
+
+  .risk-info {}
+  .risk-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7; color: #e2e8f0; }
+  .risk-level { font-size: 24px; font-weight: 500; }
+  .risk-hero.green    .risk-level { color: #4ade80; }
+  .risk-hero.yellow   .risk-level { color: #fde047; }
+  .risk-hero.red      .risk-level { color: #f87171; }
+  .risk-hero.critical .risk-level { color: #fca5a5; }
+  .risk-summary { font-size: 13px; margin-top: 4px; opacity: 0.8; color: #cbd5e1; }
+
+  /* METRICS GRID */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .metric-result {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .mr-name { font-size: 11px; color: #94a3b8; margin-bottom: 4px; }
+  .mr-value { font-size: 20px; font-weight: 500; margin-bottom: 2px; color: white; }
+  .mr-pill {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .pill-green  { background: rgba(34,197,94,0.15); color: #4ade80; }
+  .pill-yellow { background: rgba(250,204,21,0.15); color: #fde047; }
+  .pill-red    { background: rgba(239,68,68,0.15); color: #f87171; }
+
+  /* SECTIONS */
+  .result-section {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+  .result-section-title {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+  }
+  .dot-warn { background: #facc15; }
+  .dot-ok   { background: #22c55e; }
+
+  .signal-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 13px;
+    line-height: 1.5;
+    color: #cbd5e1;
+  }
+  .signal-item:last-child { border-bottom: none; }
+  .signal-bullet {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #ef4444; flex-shrink: 0; margin-top: 6px;
+  }
+
+  .action-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 13px; line-height: 1.5; color: #cbd5e1;
+  }
+  .action-item:last-child { border-bottom: none; }
+  .action-badge {
+    flex-shrink: 0;
+    font-size: 10px; font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+  .badge-urgent  { background: rgba(239,68,68,0.15); color: #f87171; }
+  .badge-short   { background: rgba(250,204,21,0.15); color: #fde047; }
+  .badge-followup{ background: rgba(34,197,94,0.15); color: #4ade80; }
+
+  .next-step-box {
+    background: #0ea5e9;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.6;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .next-step-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; color:#fff; }
+  .next-step-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.8; margin-bottom: 2px; color: #e0f2fe; }
+  
+  /* CONTENEDOR GRAFICA OCULTO INICIALMENTE */
+  #graficaContainerWrapper {
+    display: none;
+    margin-top: 25px;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">TX AI</div>
+    <div>
+      <div class="nav-title">Customer Health AI · Análisis Avanzado</div>
+      <div class="nav-sub">Diagnóstico de Cliente</div>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-title">Datos del cliente</div>
+
+    <div class="client-header">
+      <label>Nombre del cliente</label>
+      <input type="text" id="clientName" placeholder="Cargando..." readonly />
+    </div>
+
+    <!-- Nivel de Servicio -->
+    <div class="metric-card">
+      <div class="metric-card-header">
+        <div class="metric-label">Nivel de servicio</div>
+        <div class="metric-hint">% de viajes completados</div>
+      </div>
+      <div class="metric-input-row">
+        <span class="metric-value-badge" id="slaVal">- %</span>
+      </div>
+    </div>
+
+    <!-- Puntualidad -->
+    <div class="metric-card">
+      <div class="metric-card-header">
+        <div class="metric-label">Puntualidad</div>
+        <div class="metric-hint">% de viajes a tiempo</div>
+      </div>
+      <div class="metric-input-row">
+        <span class="metric-value-badge" id="puntVal">- %</span>
+      </div>
+    </div>
+
+    <!-- NPS -->
+    <div class="metric-card">
+      <div class="metric-card-header">
+        <div class="metric-label">NPS</div>
+        <div class="metric-hint">Nivel de satisfacción (0 a 10)</div>
+      </div>
+      <div class="metric-input-row">
+        <span class="metric-value-badge" id="npsVal">-</span>
+      </div>
+    </div>
+
+    <!-- Quejas -->
+    <div class="metric-card">
+      <div class="metric-card-header">
+        <div class="metric-label">Quejas abiertas</div>
+        <div class="metric-hint">Incidencias sin resolver</div>
+      </div>
+      <div class="metric-input-row">
+        <span class="metric-value-badge" id="quejasVal">-</span>
+      </div>
+    </div>
+
+    <button class="analyze-btn" onclick="window.location.href='index.html'">Regresar</button>
+    <button class="reset-btn" onclick="toggleGrafica()">Ver gráficas</button>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="mainArea">
+
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.5">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+          <path d="M12 8v4l3 3"/>
+        </svg>
+      </div>
+      <div class="empty-title">Cargando Análisis...</div>
+      <div class="empty-sub">El agente está evaluando los datos desde la base de datos</div>
+    </div>
+
+    <div class="result-panel" id="resultPanel">
+
+      <!-- Risk hero -->
+      <div class="risk-hero" id="riskHero">
+        <div class="risk-orb" id="riskOrb">🔴</div>
+        <div class="risk-info">
+          <div class="risk-label">Nivel de riesgo global</div>
+          <div class="risk-level" id="riskLevel">–</div>
+          <div class="risk-summary" id="riskSummary">–</div>
+        </div>
+      </div>
+
+      <!-- Metrics 4-col -->
+      <div class="metrics-grid">
+        <div class="metric-result">
+          <div class="mr-name">Nivel de servicio</div>
+          <div class="mr-value" id="r_sla">–</div>
+          <span class="mr-pill" id="r_sla_pill">–</span>
+        </div>
+        <div class="metric-result">
+          <div class="mr-name">Puntualidad</div>
+          <div class="mr-value" id="r_punt">–</div>
+          <span class="mr-pill" id="r_punt_pill">–</span>
+        </div>
+        <div class="metric-result">
+          <div class="mr-name">NPS</div>
+          <div class="mr-value" id="r_nps">–</div>
+          <span class="mr-pill" id="r_nps_pill">–</span>
+        </div>
+        <div class="metric-result">
+          <div class="mr-name">Quejas abiertas</div>
+          <div class="mr-value" id="r_quejas">–</div>
+          <span class="mr-pill" id="r_quejas_pill">–</span>
+        </div>
+      </div>
+
+      <!-- Signals -->
+      <div class="result-section">
+        <div class="result-section-title">
+          <span class="section-dot dot-warn"></span>
+          Señales detectadas
+        </div>
+        <div id="signalsList"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="result-section">
+        <div class="result-section-title">
+          <span class="section-dot dot-ok"></span>
+          Acciones recomendadas
+        </div>
+        <div id="actionsList"></div>
+      </div>
+
+      <!-- Next step -->
+      <div class="next-step-box">
+        <span class="next-step-icon">→</span>
+        <div>
+          <div class="next-step-label">Siguiente paso inmediato</div>
+          <div id="nextStepText">–</div>
+        </div>
+      </div>
+      
+      <!-- CONTENEDOR GRAFICA INYECTADO AQUI -->
+      <div id="graficaContainerWrapper">
+          <h2>📈 Comportamiento de compras de este cliente</h2>
+          <div class="chart-container">
+              <canvas id="graficaCompras"></canvas>
+          </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="database.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="script.js"></script>
+
+<script>
+let clienteNombre = null;
+
+document.addEventListener("DOMContentLoaded", function() {
+  const params = new URLSearchParams(window.location.search);
+  clienteNombre = params.get('cliente');
+  
+  if (clienteNombre && clientes[clienteNombre]) {
+    document.getElementById('clientName').value = clienteNombre;
+    
+    const data = clientes[clienteNombre];
+    document.getElementById('slaVal').textContent = data.servicio + '%';
+    document.getElementById('puntVal').textContent = data.puntualidad + '%';
+    document.getElementById('npsVal').textContent = data.nps;
+    document.getElementById('quejasVal').textContent = data.quejas;
+    
+    // Auto análisis
+    setTimeout(() => {
+        analyzeAuto(data.servicio, data.puntualidad, data.nps, data.quejas);
+    }, 400); // Pequeño timeout para simular la carga
+  } else {
+    document.getElementById('emptyState').innerHTML = `
+      <div class="empty-title">Cliente no encontrado</div>
+      <div class="empty-sub">Por favor regresa al dashboard y selecciona un cliente válido.</div>
+    `;
+  }
+});
+
+function toggleGrafica() {
+    const wrapper = document.getElementById('graficaContainerWrapper');
+    if (wrapper.style.display === 'block') {
+        wrapper.style.display = 'none';
+    } else {
+        wrapper.style.display = 'block';
+        if (clienteNombre && typeof mostrarGrafica === 'function') {
+            mostrarGrafica(clienteNombre);
+        }
+    }
+    
+    // Scroll hacia el fondo
+    setTimeout(() => {
+         document.getElementById('mainArea').scrollTo({
+            top: document.getElementById('mainArea').scrollHeight,
+            behavior: 'smooth'
+         });
+    }, 100);
+}
+
+// LOGICA VIGÍA ADAPTADA PARA LA DB
+function getRating(metric, val) {
+  if (metric === 'sla')    return val >= 95 ? 'green' : val >= 90 ? 'yellow' : 'red';
+  if (metric === 'punt')   return val >= 90 ? 'green' : val >= 80 ? 'yellow' : 'red';
+  
+  // Adaptado para NPS rango DB 0-10
+  if (metric === 'nps')    return val >= 8 ? 'green' : val >= 6 ? 'yellow' : 'red';
+  
+  if (metric === 'quejas') return val === 0  ? 'green' : val <= 2  ? 'yellow' : 'red';
+}
+
+function pillClass(r) {
+  return r === 'green' ? 'pill-green' : r === 'yellow' ? 'pill-yellow' : 'pill-red';
+}
+function pillLabel(r) {
+  return r === 'green' ? 'OK' : r === 'yellow' ? 'Atención' : 'Crítico';
+}
+function pillEmoji(r) {
+  return r === 'green' ? '🟢' : r === 'yellow' ? '🟡' : '🔴';
+}
+
+function globalRisk(reds, yellows, npsVal) {
+  if (reds >= 3 && npsVal < 6) return 'critical';
+  if (reds >= 3) return 'critical';
+  if (reds >= 2 || yellows >= 3) return 'high';
+  if (reds === 1 || yellows >= 2) return 'medium';
+  return 'low';
+}
+
+const RISK_META = {
+  low:      { label: 'Riesgo bajo',    cls: 'green',    orb: '🟢', summary: 'El cliente muestra métricas saludables. Mantener seguimiento de rutina.' },
+  medium:   { label: 'Riesgo medio',   cls: 'yellow',   orb: '🟡', summary: 'Hay señales tempranas de insatisfacción. Actuar en los próximos días.' },
+  high:     { label: 'Riesgo alto',    cls: 'red',      orb: '🔴', summary: 'El cliente está en deterioro activo. Se requiere intervención esta semana.' },
+  critical: { label: 'Riesgo crítico', cls: 'critical', orb: '🚨', summary: 'Alta probabilidad de cancelación o licitación si no se actúa hoy.' }
+};
+
+function genSignals(sla, punt, nps, quejas, rs, rp, rn, rq) {
+  let signals = [];
+  if (rs === 'red') signals.push(`Nivel de servicio en ${sla}%: el cliente no está recibiendo la totalidad de los viajes contratados.`);
+  if (rp === 'red') signals.push(`Puntualidad de ${punt}%: retrasos frecuentes afectando la cadena del cliente.`);
+  if (rn === 'red') signals.push(`NPS en nivel ${nps}/10: el cliente está en zona de detractores con opiniones negativas evidentes.`);
+  if (rq === 'red') signals.push(`${quejas} quejas activas: atención deficiente a las inconformidades manifestadas.`);
+  
+  if (rs === 'yellow') signals.push(`Nivel de servicio en ${sla}%: operando al límite inferior del umbral tolerable.`);
+  if (rp === 'yellow') signals.push(`Puntualidad de ${punt}%: ligera desviación de tiempos; revisar rutas clave.`);
+  if (rn === 'yellow') signals.push(`NPS de ${nps}/10: cliente en estado pasivo/neutral con posibilidad de deterioro rápido.`);
+  if (rq === 'yellow') signals.push(`${quejas} queja(s) en proceso: volumen manejable, pero requiere cierre pronto.`);
+  
+  if (signals.length === 0) signals.push('Todas las métricas se encuentran dentro de los parámetros de salud aceptados.');
+  return signals;
+}
+
+function genActions(risk, sla, punt, nps, quejas, rs, rp, rn, rq) {
+  let actions = [];
+  if (risk === 'critical' || risk === 'high') {
+    actions.push({ badge: 'urgent',   label: 'Inmediata', text: 'Contactar al contacto principal del cliente y presentar estatus real de la operación hoy.' });
+    if(rp !== 'green' || rs !== 'green') actions.push({ badge: 'urgent', label: 'Operaciones', text: 'Convocar junta de crisis con Mesa de Control para alinear métricas rojas.' });
+    actions.push({ badge: 'short',    label: 'Próxima semana', text: 'Entrega de un plan de recuperación de indicadores (SLA/Puntualidad).' });
+  } else if (risk === 'medium') {
+    actions.push({ badge: 'urgent',   label: 'Atención',  text: rq !== 'green' ? 'Resolver y reportar resolución de quejas antes del viernes.' : 'Contactar al cliente proactivamente.' });
+    actions.push({ badge: 'followup', label: 'Monitoreo', text: 'Vigilar comportamiento de NPS y SLA durante los próximos 15 días.' });
+  } else {
+    actions.push({ badge: 'short',    label: 'Fidelización', text: 'Enviar un resumen mensual de logros y mantener certidumbre operativa.' });
+  }
+  return actions;
+}
+
+function genNextStep(risk, rq, nps) {
+  if (risk === 'critical') return 'Realiza llamada telefónica urgente con dirección del cliente.';
+  if (risk === 'high') return 'Programa una reunión operativa de evaluación antes del viernes.';
+  if (risk === 'medium' && rq !== 'green') return 'Foco absoluto en resolución de quejas activas esta semana.';
+  if (risk === 'medium') return 'Haz un check-in rápido vía correo para asegurar conformidad.';
+  return 'Envía un reporte destacando el excelente servicio reciente del equipo.';
+}
+
+function analyzeAuto(sla, punt, nps, quejas) {
+  const rs = getRating('sla',    sla);
+  const rp = getRating('punt',   punt);
+  const rn = getRating('nps',    nps);
+  const rq = getRating('quejas', quejas);
+
+  const reds    = [rs,rp,rn,rq].filter(x => x === 'red').length;
+  const yellows = [rs,rp,rn,rq].filter(x => x === 'yellow').length;
+  const risk    = globalRisk(reds, yellows, nps);
+  const meta    = RISK_META[risk];
+
+  // Update hero
+  const hero = document.getElementById('riskHero');
+  hero.className = 'risk-hero ' + meta.cls;
+  document.getElementById('riskOrb').textContent   = meta.orb;
+  document.getElementById('riskLevel').textContent  = meta.label;
+  document.getElementById('riskSummary').textContent = meta.summary;
+
+  // Update metric results
+  const set = (id, val, suffix, r) => {
+    document.getElementById(id).textContent = val + suffix;
+    const pill = document.getElementById(id + '_pill');
+    pill.className = 'mr-pill ' + pillClass(r);
+    pill.textContent = pillLabel(r);
+  };
+  set('r_sla',    sla,    '%', rs);
+  set('r_punt',   punt,   '%', rp);
+  set('r_nps',    nps,    '',  rn);
+  set('r_quejas', quejas, '',  rq);
+
+  // Signals
+  const signals = genSignals(sla, punt, nps, quejas, rs, rp, rn, rq);
+  document.getElementById('signalsList').innerHTML = signals.map(s =>
+    `<div class="signal-item"><span class="signal-bullet"></span><span>${s}</span></div>`
+  ).join('');
+
+  // Actions
+  const actions = genActions(risk, sla, punt, nps, quejas, rs, rp, rn, rq);
+  const badgeCls = { urgent: 'badge-urgent', short: 'badge-short', followup: 'badge-followup' };
+  document.getElementById('actionsList').innerHTML = actions.map(a =>
+    `<div class="action-item"><span class="action-badge ${badgeCls[a.badge]}">${a.label}</span><span>${a.text}</span></div>`
+  ).join('');
+
+  // Next step
+  document.getElementById('nextStepText').textContent = genNextStep(risk, rq, nps);
+
+  // Show
+  document.getElementById('emptyState').style.display  = 'none';
+  document.getElementById('resultPanel').style.display = 'flex';
+}
+</script>
+</body>
+</html>

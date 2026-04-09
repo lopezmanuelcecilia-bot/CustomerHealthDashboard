@@ -40,7 +40,7 @@ Se desarrolló un dashboard inteligente que:
    - Riesgo Alto
    - Riesgo Medio
    - Cliente Saludable
-4. Sugiere acciones preventivas.
+4. Sugiere acciones preventivas automáticas.
 
 ---
 
@@ -48,18 +48,27 @@ Se desarrolló un dashboard inteligente que:
 
 El algoritmo evalúa:
 
-- Caída en compras
-- Servicio < 85%
-- Puntualidad < 85%
-- NPS < 7
-- Quejas > 2
+NIVEL DE SERVICIO:
+- ≥ 95% → Bajo
+- 90–94% → Medio
+- < 90% → Alto
 
-Cada factor reduce el Health Score.
+PUNTUALIDAD:
+- ≥ 90% → Bajo
+- 80–89% → Medio
+- < 80% → Alto
 
-Score final:
-- 0–49 = Riesgo Alto
-- 50–74 = Riesgo Medio
-- 75–100 = Saludable
+NPS:
+- 9-10 → Bajo
+- 7–8 → Medio
+- < 7  → Alto
+
+QUEJAS ABIERTAS:
+- 0 → Bajo
+- 1–2 → Medio
+- ≥ 3 → Alto
+
+Esta matriz determina la clasificación automática de riesgo global dentro del sistema, indicando el grado de urgencia de intervención para cada cliente.
 
 ---
 
@@ -82,19 +91,12 @@ Score final:
 
 ---
 
-## Limitaciones
-
-- Datos simulados
-- No conectado a sistemas reales
-- No usa machine learning real
-
----
-
 ## Cómo Ejecutarlo
 
-1. Abrir `cliente.html`
-2. Abrir `dashboard.html`
-3. Registrar compras
-4. Analizar clientes en dashboard
+1. Clonar el repositorio.
+2. Abrir el archivo `index.html` (Dashboard principal) usando tu navegador preferido (doble clic).
+3. Automáticamente se generarán datos de prueba dinámicos (NPS, Quejas, Servicio, Puntualidad).
+4. Dale en "Analizar" a cualquier cliente para entrar al Agente y consultar el informe predictivo y sus gráficas de compras.
+5. Puedes registrar operaciones externas en `cliente.html` y observar cómo impactan en el Dashboard y en los modelos de prevención.
 
 ---
